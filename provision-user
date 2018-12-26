@@ -1,0 +1,22 @@
+#!/usr/bin/env ruby
+
+# Contributed by Tyson Gern
+
+if ARGV.length != 2
+  puts "Usage: provision-user <org> <email>"
+  puts "Example usage: provision-user my-org test@example.com"
+  exit 1
+end
+
+org, email = ARGV
+
+target = `cf target`
+
+if !target.include?(org)
+  raise "Please target the #{org} organization"
+end
+
+space_name = email.split("@")[0]
+
+puts `cf create-space "#{space_name}" -o "#{org}" -q 10G`
+puts `cf set-space-role "#{email}" "#{org}" "#{space_name}" SpaceDeveloper`
