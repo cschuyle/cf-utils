@@ -11,9 +11,19 @@ function ctrl_c() {
         exit -1
 }
 
+if [[ "$1" =~ -.*h ]]
+    then
+        echo "Usage: cfu-list-running-apps  # List all running apps in the current space"
+        echo "       cfu-list-running-apps space1 space2 ... # List all running apps in specified spaces"
+        echo ""
+        echo "Output format:"
+        echo "ORG SPACE APP"
+        exit 0
+fi
+
 if [ $# -eq 0 ]
-  then
-    spaces=$my_space
+    then
+        spaces=$my_space
 fi
 for space in $spaces; do
   cf target -s $space 2>&1 > /dev/null

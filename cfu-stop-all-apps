@@ -10,13 +10,21 @@ function ctrl_c() {
         exit -1
 }
 
-for space in `list-spaces`; do
+if [[ "$1" =~ -.*h ]]
+    then
+        echo "Usage: cfu-stop-all-apps  # Print commands to stop running apps in all visible spaces"
+        exit 0
+fi
+
+at_least_one=false
+for space in `cfu-list-spaces`; do
 
     [ "$space" = "$my_space" ] && continue
 
     apps=$(cfu-list-running-apps $space|awk '{print $3;}')
     if [ ! -z "$apps" ]
         then
+            at_least_one=true
             echo cf set-space-role $me $my_org $space SpaceDeveloper
             echo cf target -s $space
 
@@ -27,6 +35,6 @@ for space in `list-spaces`; do
             echo cf unset-space-role $me $my_org $space SpaceDeveloper
     fi
 done
+[ "$at_least_one" = "true" ] && echo cf target -s $my_space
 
 cf target -s $my_space 2>&1 >/dev/null
-
