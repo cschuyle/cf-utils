@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+my_space=$(cfu-space)
+me=$(cfu-user)
+my_org=$(cfu-org)
+trap ctrl_c INT
+
+function ctrl_c() {
+        echo "CTRL-C, retargeting to initial space"
+        cf target -s $my_space
+        exit -1
+}
+
+for space in `list-spaces`; do
+
+    [ "$space" = "$my_space" ] && continue
+
+    apps=$(cfu-list-running-apps $space|awk '{print $3;}')
+    if [ ! -z "$apps" ]
+        then
+            echo cf set-space-role $me $my_org $space SpaceDeveloper
+            echo cf target -s $space
+
+            for app in $apps; do
+                echo cf stop $app
+            done
+
+            echo cf unset-space-role $me $my_org $space SpaceDeveloper
+    fi
+done
+
+cf target -s $my_space 2>&1 >/dev/null
+

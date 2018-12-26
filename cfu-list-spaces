@@ -1,0 +1,1 @@
+cf spaces |grep -v '^name$'|grep -v 'Getting spaces in org'|grep -v '^$'

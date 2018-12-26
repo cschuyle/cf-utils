@@ -1,0 +1,26 @@
+set -e
+spaces=$*
+my_org=$(cfu-org)
+my_space=$(cfu-space)
+
+trap ctrl_c INT
+
+function ctrl_c() {
+        echo "CTRL-C, retargeting to initial space"
+        cf target -s $my_space
+        exit -1
+}
+
+if [ $# -eq 0 ]
+  then
+    spaces=$my_space
+fi
+for space in $spaces; do
+  cf target -s $space 2>&1 > /dev/null
+  started_apps=$(cf apps|grep started|awk '{print $1;}')
+  for app in $started_apps; do 
+    echo $my_org $space $app
+  done
+done
+
+cf target -s $my_space 2>&1 >/dev/null
